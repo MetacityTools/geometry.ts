@@ -43,6 +43,7 @@ function testOverlap(a: Float32Array, b: Float32Array) {
 }
 
 function weilerAtherton(a1: vec2, a2: vec2, a3: vec2, b1: vec2, b2: vec2, b3: vec2) {
+    //TODO debug, this is buggy
     const a = [a1, a2, a3];
     const b = [b1, b2, b3];
     const aInside = [false, false, false];
@@ -69,7 +70,7 @@ function weilerAtherton(a1: vec2, a2: vec2, a3: vec2, b1: vec2, b2: vec2, b3: ve
 
 function isInside(p: vec2, a: vec2, b: vec2, c: vec2) {
     const [u, v] = barCoords2D(a, b, c, p);
-    return u >= 0 && v >= 0 && u + v < 1;
+    return u >= 0 && v >= 0 && u + v <= 1;
 }
 
 function projectTo3D(overlap: vec2[], b1: vec2, b2: vec2, b3: vec2, z: number[]) {
