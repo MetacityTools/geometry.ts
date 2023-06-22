@@ -1,4 +1,3 @@
-import { earclipConvexPolygon } from './earclip';
-import { overlapTriangle } from './overlapTriangle';
+import { overlapProjectedTriangle } from './overlapTriangle';
 
-export { earclipConvexPolygon, overlapTriangle };
+export { overlapProjectedTriangle };
