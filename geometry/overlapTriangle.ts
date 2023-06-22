@@ -1,7 +1,13 @@
 import { vec2, vec3 } from 'gl-matrix';
 
 /**
- * Computes planar overlap of two 3D triangles in 2D space (XY plane)
+ * Computes planar overlap of two 3D triangles in 2D space (in XY plane)
+ *
+ * The procedure is as follows:
+ * 1. Project both of the triangles to 2D space (XY plane)
+ * 2. Compute overlap of the two 2D triangles -> polygon
+ * 3. Triangulate the polygon
+ * 4. Project the resulting triangles back to 3D space (using the plane of the B triangle)
  *
  * @param a array of 3 vec3s (at least 9 floats) - being clipped
  * @param b array of 3 vec3s (at least 9 floats) - clipping polygon
