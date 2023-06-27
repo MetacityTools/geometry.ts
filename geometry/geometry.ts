@@ -1,3 +1,3 @@
-import { overlapProjectedTriangle } from './overlapTriangle';
+import { overlapProjectedTriangle, weilerAtherton, triangulate } from './overlapTriangle';
 
-export { overlapProjectedTriangle };
+export { overlapProjectedTriangle, weilerAtherton, triangulate };

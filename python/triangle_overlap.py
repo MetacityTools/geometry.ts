@@ -16,7 +16,7 @@ def isTriangleDegenerate(a, b, c, eps=0):
     return abs(a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1])) <= eps
 
 # return point intersection of two line segments
-def intersect(p1, p2, p3, p4):
+def intersect(p1, p2, p3, p4, d):
     x1,y1 = p1
     x2,y2 = p2
     x3,y3 = p3
@@ -32,7 +32,9 @@ def intersect(p1, p2, p3, p4):
         return None
     x = x1 + ua * (x2-x1)
     y = y1 + ua * (y2-y1)
-    return (x, y)
+    ret = (x, y)
+    d[ret] = (ua, ub)
+    return ret
 
 def weilerAtherton(a1, a2, a3, b1, b2, b3):
     # test for triangle degeneracy
@@ -44,6 +46,9 @@ def weilerAtherton(a1, a2, a3, b1, b2, b3):
         return None
 
     # flip triangle order if necessary
+    # print(sign(a1, a2, a3), sign(b1, b2, b3))
+    # print((a1, a2, a3), (b1, b2, b3), sign(a1, a2, a3), sign(b1, b2, b3))
+
     if sign(a1, a2, a3) < 0:
         a1, a3 = a3, a1
     if sign(b1, b2, b3) < 0:
@@ -58,10 +63,15 @@ def weilerAtherton(a1, a2, a3, b1, b2, b3):
     intersections = []
     entryPoint = None
 
+    # print(accA, accB,sign(a1, a2, a3), sign(b1, b2, b3))
+    # print(sign(a1, a2, a3), sign(b1, b2, b3))
+
+    d = {}
     for segA in segmentsA:
         for segB in segmentsB:
-            intersection = intersect(segA[0], segA[1], segB[0], segB[1])
+            intersection = intersect(segA[0], segA[1], segB[0], segB[1], d)
             if intersection:
+                # print(f"inter: {intersection}")
                 if intersection in segA or intersection in segB:
                     # vertex-on-edge or vertex-on-vertex or edge-on-edge
                     # print(f"touching vertex {intersection}")
@@ -72,8 +82,16 @@ def weilerAtherton(a1, a2, a3, b1, b2, b3):
                     # insert intersection point into the polygon point lists
                     idA = len(accA) if accA.index(segA[1])==0 else accA.index(segA[1])
                     idB = len(accB) if accB.index(segB[1])==0 else accB.index(segB[1])
-                    accA.insert(idA, intersection)
-                    accB.insert(idB, intersection)
+                    # print(intersection, accA.index(segA[0])==idA-1, accB.index(segB[0])==idB-1)
+                    if accA.index(segA[0])!=idA-1 and d[accA[idA-1]][0] > d[intersection][0]:
+                        accA.insert(idA-1, intersection)
+                    else:
+                        accA.insert(idA, intersection)
+
+                    if accB.index(segB[0])!=idB-1 and d[accB[idB-1]][1] > d[intersection][1]:
+                        accB.insert(idB-1, intersection)
+                    else:
+                        accB.insert(idB, intersection)
                     
                     if not entryPoint:
                         # TODO: make this into a function parameter
@@ -82,6 +100,10 @@ def weilerAtherton(a1, a2, a3, b1, b2, b3):
                         if (isEntering):
                             entryPoint = intersection
 
+    # print("intersections: ", intersections)
+    # print("accA: ", accA)
+    # print("accB: ", accB)
+    # print(entryPoint)
     if not entryPoint:
         # check for complete containment, we already know there are no intersection, so one point test is enough
         if pointInTriangle(a1, b1, b2, b3):
@@ -106,6 +128,8 @@ def weilerAtherton(a1, a2, a3, b1, b2, b3):
 
             # next point of the result
             nextElm = accA[nextIdx] if traversingA else accB[nextIdx]
+            # print(nextElm)
+
             if nextElm in intersections:
                 # loop complete, we can end
                 if nextElm == entryPoint:
@@ -137,21 +161,22 @@ if __name__ == "__main__":
     #     (1, 0), (3, 0), (2, -2))
 
     # vertex touching vertex
-    # weilerAtherton(
+    # inter = weilerAtherton(
     #     (0, 0), (2, 0), (2, 2), 
     #     (2, 0), (2, -2), (4, 0))
+    # print(inter)
 
     # vertex touching edge
-    inter = weilerAtherton(
-        (0, 0), (2, 0), (2, 2), 
-        (1, 1), (2, -1), (3, 1))        
-    print(inter)
+    # inter = weilerAtherton(
+    #     (0, 0), (2, 0), (2, 2), 
+    #     (1, 1), (2, -1), (3, 1))
+    # print(inter)
 
     # reversed second triangle
-    inter = weilerAtherton(
-        (0, 0), (2, 0), (2, 2), 
-        (3, 1), (2, -1), (1, 1))        
-    print(inter)
+    # inter = weilerAtherton(
+    #     (0, 0), (2, 0), (2, 2), 
+    #     (3, 1), (2, -1), (1, 1))
+    # print(inter)
 
     # one triangle is degenerate
     # weilerAtherton(
@@ -164,3 +189,21 @@ if __name__ == "__main__":
     #     (0, -1), (2, -1), (2, -3))
     # print(inter)
 
+
+    inter = weilerAtherton(
+        (2, 0), (1, 2), (0, 0), 
+        (0, 1), (2, 1), (1, -1))
+    print(inter)
+    inter = weilerAtherton(
+        (1, 2), (0, 0), (2, 0), 
+        (0, 1), (2, 1), (1, -1))
+    print(inter)
+
+    inter = weilerAtherton(
+        (0, 0), (2, 0), (1, 2),
+        (0, 1), (2, 1), (1, -1))
+    print(inter)
+    inter = weilerAtherton(
+        (0, 0), (2, 0), (1, 2),
+        (2, 1), (1, -1), (0, 1))
+    print(inter)
