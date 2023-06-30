@@ -1,4 +1,5 @@
 import { vec2, vec3 } from 'gl-matrix';
+import { sign, intersectSegmentSegment, isTriangleDegenerate, projectTo3D } from './utils';
 
 /**
  * Computes planar overlap of two 3D triangles in 2D space (in XY plane)
@@ -52,28 +53,6 @@ export function overlapProjectedTriangle(a: Float32Array, b: Float32Array): Floa
     return output;
 }
 
-function projectTo3D(points2D: vec2[], p1: vec3, p2: vec3, p3: vec3): vec3[] {
-    // Calculate the normal vector of the plane
-    const normal = [
-        (p2[1] - p1[1]) * (p3[2] - p1[2]) - (p2[2] - p1[2]) * (p3[1] - p1[1]),
-        (p2[2] - p1[2]) * (p3[0] - p1[0]) - (p2[0] - p1[0]) * (p3[2] - p1[2]),
-        (p2[0] - p1[0]) * (p3[1] - p1[1]) - (p2[1] - p1[1]) * (p3[0] - p1[0])];
-    
-    // Calculate the distance from the origin to the plane
-    const d = -(normal[0] * p1[0] + normal[1] * p1[1] + normal[2] * p1[2]);
-
-    // Project each 2D point onto the 3D plane
-    const projectedPoints: vec3[] = [];
-
-    for (const point2D of points2D) {
-        const [x, y] = point2D;
-
-        // Calculate the z-coordinate of the projected point
-        const z = -(normal[0] * x + normal[1] * y + d) / normal[2];
-        projectedPoints.push(vec3.fromValues(x, y, z));
-    }
-    return projectedPoints;
-}
 
 export function triangulate(polygon: vec3[]) {
     const triangles = [];
@@ -84,10 +63,6 @@ export function triangulate(polygon: vec3[]) {
         triangles.push(polygon[i]);        
     }
     return triangles;
-}
-
-function sign(p1: vec2, p2: vec2, p3: vec2) {
-    return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1]);
 }
 
 function pointInTriangle(p: vec2, v1: vec2, v2: vec2, v3: vec2) {
@@ -101,29 +76,6 @@ function pointInTriangle(p: vec2, v1: vec2, v2: vec2, v3: vec2) {
     return !(has_neg && has_pos);
 }
 
-// valid triangle if non zero area
-function isTriangleDegenerate(a: vec2, b: vec2, c: vec2, eps: number = 0) {
-    return Math.abs(a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1])) <= eps;
-}
-
-// return point intersection of two line segments
-function intersect(p1: vec2, p2: vec2, p3: vec2, p4: vec2, segmentCoefficients: vec2[]) {
-    const denom = (p4[1]-p3[1]) * (p2[0]-p1[0]) - (p4[0]-p3[0]) * (p2[1]-p1[1]);
-    if (denom == 0) { // parallel        
-        return null;
-    } 
-    const ua = ((p4[0]-p3[0]) * (p1[1]-p3[1]) - (p4[1]-p3[1]) * (p1[0]-p3[0])) / denom;
-    if (ua < 0 || ua > 1) { // out of range    
-        return null;
-    }
-    const ub = ((p2[0]-p1[0]) * (p1[1]-p3[1]) - (p2[1]-p1[1]) * (p1[0]-p3[0])) / denom;
-    if (ub < 0 || ub > 1) { // out of range
-        return null;
-    } 
-    segmentCoefficients.push(vec2.fromValues(ua, ub));
-    return vec2.fromValues(p1[0] + ua * (p2[0]-p1[0]), p1[1] + ua * (p2[1]-p1[1]));
-}
-    
 export function weilerAtherton(a1: vec2, a2: vec2, a3: vec2, b1: vec2, b2: vec2, b3: vec2, eps:number=0.01) {
     // test for triangle degeneracy
     if (isTriangleDegenerate(a1, a2, a3)) {
@@ -152,7 +104,7 @@ export function weilerAtherton(a1: vec2, a2: vec2, a3: vec2, b1: vec2, b2: vec2,
     let entryPoint:vec2|undefined = undefined;
     for (const segA of segmentsA) {
         for (const segB of segmentsB) {
-            const intersection = intersect(segA[0], segA[1], segB[0], segB[1], segmentCoefficients);
+            const intersection = intersectSegmentSegment(segA[0], segA[1], segB[0], segB[1], segmentCoefficients);
             if (intersection) {
                 if (vec2.equals(intersection, segA[0]) || 
                     vec2.equals(intersection, segA[1]) || 

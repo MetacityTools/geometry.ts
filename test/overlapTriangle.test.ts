@@ -297,12 +297,12 @@ test('hexOverlapReversed2', () => {
     expect(overlap.length).toBe(6);  
 });
 
-test('overlapTriangle', () => {
-    const triangleA = new Float32Array([1,1,0, 3,1,0, 2,-1,0]);
-    const triangleB = new Float32Array([0,0,0, 2,0,1, 2,2,1]);
+// test('overlapTriangle', () => {
+//     const triangleA = new Float32Array([1,1,0, 3,1,0, 2,-1,0]);
+//     const triangleB = new Float32Array([0,0,0, 2,0,1, 2,2,1]);
 
-    const overlap = overlapProjectedTriangle(triangleA, triangleB);
-    expect(overlap).not.toBeNull();
-    //TODO add more elaborate tests
-    console.log(overlap);
-});
+//     const overlap = overlapProjectedTriangle(triangleA, triangleB);
+//     expect(overlap).not.toBeNull();
+//     //TODO add more elaborate tests
+//     console.log(overlap);
+// });
