@@ -1,7 +1,7 @@
 {
     "name": "@vojtatom/geometry",
     "private": false,
-    "version": "0.1.0",
+    "version": "1.0.0",
     "type": "module",
     "repository": {
         "type": "git",
@@ -18,6 +18,13 @@
         "email": "hello@vojtatom.cz",
         "url": "https://vojtatom.cz"
     },
+    "contributors": [
+        {
+            "name": "Adam Pospíšil",
+            "email": "adam@technoumeni.cz",
+            "url": "https://stdio.cz"
+        }
+    ],
     "license": "MIT",
     "files": [
         "dist/**/*"
