@@ -49,13 +49,13 @@ jobs:
                   npm run build
             - name: Create Release ZIP file
               run: |
-                  zip -r csvts.zip dist
+                  zip -r geometry.zip dist
             - uses: rickstaa/action-create-tag@v1
               with:
                   tag: ${{ env.CURRENT_VERSION }}
             - uses: ncipollo/release-action@v1
               with:
-                  artifacts: 'csvts.zip'
+                  artifacts: 'geometry.zip'
                   token: ${{ secrets.GITHUB_TOKEN }}
                   generateReleaseNotes: true
                   tag: ${{ env.CURRENT_VERSION }}

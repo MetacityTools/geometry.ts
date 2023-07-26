@@ -1,11 +1,11 @@
 {
-    "name": "@vojtatom/geometry",
+    "name": "@metacity/geometry",
     "private": false,
     "version": "1.0.0",
     "type": "module",
     "repository": {
         "type": "git",
-        "url": "https://github.com/vojtatom/geometry"
+        "url": "https://github.com/MetacityTools/geometry.ts"
     },
     "keywords": [
         "geometry",
